@@ -1,12 +1,17 @@
 // ==UserScript==
 // @name         Rocker gestures
+// @updateURL    https://openuserjs.org/meta/fluffynuts/Rocker-gestures.meta.js
+// @copyright    2017, Davyd McColl (https://github.com/fluffynuts)
 // @version      0.1
-// @description  Provides simple forward and back gestures via mouse button rocking
+// @description  Provides simple forward and back gestures via mouse button rocking (back with right-left and fwd with left-right)
+// @license      BSD
 // @author       fluffynuts
 // @grant        none
 // @include      *
 // ==/UserScript==
-
+// ==OpenUserJS==
+// @author       fluffynuts
+// ==/OpenUserJs==
 (function() {
     'use strict';
     var last,
