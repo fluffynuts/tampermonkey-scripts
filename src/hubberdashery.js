@@ -180,7 +180,7 @@
                         }
                         timer = window.setTimeout(() => {
                         this.wait();
-                            var util = new FilenameFilter(entry.value);
+                            var util = new FilenameFilter(this._fileNameEntry.value);
                             util.filter()
                                 .then(() => this.unwait())
                                 .catch(e => {
