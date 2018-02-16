@@ -10,7 +10,6 @@
 
 (function() {
     'use strict';
-    console.log("-- testing @require vs updates --");
 
     function PullRequestsHack() {
         this._waited = 0;
