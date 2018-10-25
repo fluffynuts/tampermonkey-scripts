@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         WorkForIt
+// @name         Youtube Sums
 // @namespace    http://tampermonkey.net/
 // @version      0.1
 // @description  try to take over the world!
@@ -12,6 +12,7 @@
 (function() {
     "use strict";
     var fontSize = 64; // other sizes may be based off of this
+    var currentLocation = window.location.href;
     function id(part) {
         return "work-for-it-" + part;
     }
@@ -232,20 +233,34 @@
         return floater;
     }
 
-    var overlay = makeOverlay();
-    var dialog = makeDialog();
-    var problem = generateProblem("+");
-    var sum = makeSum(problem);
-    var button = makeDoneButton();
-    dialog.appendChild(button);
-    var floater = makeFloaterFor(sum);
-    dialog.appendChild(floater);
-    dialog.appendChild(sum);
-    document.body.appendChild(dialog);
+    function popSum() {
+        var overlay = makeOverlay();
+        var dialog = makeDialog();
+        var problem = generateProblem("+");
+        var sum = makeSum(problem);
+        var button = makeDoneButton();
+        dialog.appendChild(button);
+        var floater = makeFloaterFor(sum);
+        dialog.appendChild(floater);
+        dialog.appendChild(sum);
+        document.body.appendChild(dialog);
 
-    button.addEventListener("click", checkAnswer);
-    window.addEventListener("load", function() {
-        console.log("focusing answer");
-        find(idSel("answer")).focus();
-    });
+        button.addEventListener("click", checkAnswer);
+        window.addEventListener("load", function() {
+            console.log("focusing answer");
+            find(idSel("answer")).focus();
+        });
+    }
+    popSum();
+
+    window.setInterval(function() {
+        if (window.location.href !== currentLocation) {
+            console.log({
+                href: window.location.href,
+                currentLocation: currentLocation
+            });
+            currentLocation = window.location.href;
+            popSum();
+        }
+    }, 1000);
 })();
