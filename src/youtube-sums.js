@@ -233,7 +233,14 @@
         return floater;
     }
 
+    function alreadyShowing() {
+        return !!find(idSel("overlay"));
+    }
+
     function popSum() {
+        if (alreadyShowing()) {
+            return;
+        }
         var overlay = makeOverlay();
         var dialog = makeDialog();
         var problem = generateProblem("+");
