@@ -13,6 +13,18 @@
     "use strict";
     var fontSize = 64; // other sizes may be based off of this
     var currentLocation = window.location.href;
+
+    Array.prototype.from = Array.prototype.from || function(src) {
+        var result = [];
+        if (!src.length) {
+            return result;
+        }
+        for (var i = 0; i < src.length; i++) {
+            result.push(src[i]);
+        }
+        return result;
+    }
+
     function id(part) {
         return "work-for-it-" + part;
     }
@@ -111,24 +123,41 @@
         return min + Math.round(Math.random() * (max - min));
     }
 
+    function ensureFirstIsLarger(o) {
+        if (o.first < o.second) {
+            var swp = o.first;
+            o.first = o.second;
+            o.second = swp;
+        }
+        return o;
+    }
+
     var transforms = {
-        "+": function(a, b) { return a + b; },
-        "-": function(a, b) { return a - b; },
-        "/": function(a, b) { return a / b; },
-        "*": function(a, b) { return a * b; }
+        "+": function(o) { return o.first + o.second; },
+        "-": function(o) {
+            ensureFirstIsLarger(o);
+            return o.first - o.second;
+        },
+        "/": function(o) {
+            ensureFirstIsLarger(o);
+            var rem = o.first % o.second;
+            o.first += rem;
+            return o.first / o.second;
+        },
+        "*": function(o) { return o.first * o.second }
     };
 
-    function generateProblem(operator) {
-        var first = random(0, 10);
-        var second = random(0, 10);
-        operator = operator || "+";
-        var answer = transforms[operator](first, second);
-        return {
-            first: first,
-            second: second,
+    function generateProblem() {
+        var operator = randomFrom(["+", "-"]);
+        var randoms = {
+            first: random(0, 15),
+            second: random(0, 15)
+        }
+        var answer = transforms[operator](randoms);
+        return Object.assign(randoms, {
             answer: answer,
             operator: operator
-        };
+        });
     }
 
     function createAnswerInput(answer) {
@@ -233,17 +262,19 @@
         return floater;
     }
 
-    function alreadyShowing() {
-        return !!find(idSel("overlay"));
+    function pauseVideo() {
+        Array.from(document.querySelectorAll("video")).forEach(v => v.pause());
+    }
+
+    function randomFrom(arr) {
+        return arr[random(0, arr.length-1)];
     }
 
     function popSum() {
-        if (alreadyShowing()) {
-            return;
-        }
+        pauseVideo();
         var overlay = makeOverlay();
         var dialog = makeDialog();
-        var problem = generateProblem("+");
+        var problem = generateProblem();
         var sum = makeSum(problem);
         var button = makeDoneButton();
         dialog.appendChild(button);
