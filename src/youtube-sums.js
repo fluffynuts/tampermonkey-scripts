@@ -216,13 +216,33 @@
         var answer = parseInt(input.getAttribute("data-answer"));
         var entered = parseInt(input.value);
         if (entered === answer) {
+            storeCorrect();
             fadeOut(find(idSel("overlay")));
             fadeOut(find(idSel("dialog")));
         } else {
+            storeIncorrect();
             var dlg = document.getElementById(id("dialog"));
             shake(dlg);
             input.style.borderColor = "red";
         }
+    }
+
+    function storeCorrect() {
+        incrementStoredValue("correct answers");
+    }
+
+    function storeIncorrect() {
+        incrementStoredValue("incorrect answers");
+    }
+
+    function incrementStoredValue(key) {
+        key = "youtube sums: " + (key || "");
+        var stored = parseInt(localStorage.getItem(key) || "0");
+        if (isNaN(stored)) {
+            stored = 0;
+        }
+        stored++;
+        localStorage.setItem(key, stored);
     }
 
     function shake(el, positions) {
@@ -284,14 +304,23 @@
         document.body.appendChild(dialog);
 
         button.addEventListener("click", checkAnswer);
-        window.addEventListener("load", function() {
-            console.log("focusing answer");
-            find(idSel("answer")).focus();
-        });
+        window.addEventListener("load", focusAnswer);
+        dialog.addEventListener("click", focusAnswer);
+        overlay.addEventListener("click", focusAnswer);
+        focusAnswer();
     }
+
+    function focusAnswer() {
+        var el = find(idSel("answer"));
+        if (el) {
+            el.focus();
+        }
+    }
+
     popSum();
 
     window.setInterval(function() {
+        focusAnswer();
         if (window.location.href !== currentLocation) {
             console.log({
                 href: window.location.href,
