@@ -283,6 +283,9 @@
     }
 
     function pauseVideo() {
+        if (!find(idSel("dialog"))) {
+            return;
+        }
         Array.from(document.querySelectorAll("video")).forEach(v => v.pause());
     }
 
@@ -321,6 +324,7 @@
 
     window.setInterval(function() {
         focusAnswer();
+        pauseVideo();
         if (window.location.href !== currentLocation) {
             console.log({
                 href: window.location.href,
