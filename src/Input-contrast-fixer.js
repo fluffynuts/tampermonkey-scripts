@@ -2,7 +2,7 @@
 // @name         Input contrast fixer
 // @version      0.1
 // @description  Uses computed styles on inputs & textareas to determine if the site's inputs are readable
-//               and adjusts them to be black-on-white (configurable via FALLBACK_FOREGROUND and FALLBACK_BACKGROUND)
+//               and adjusts them to be the bg/fg of the document body
 // @author       davydm@gmail.com
 // @match        *://*/*
 // @grant        none
@@ -10,8 +10,24 @@
 
 (function() {
     'use strict';
-    var FALLBACK_FOREGROUND = "black";
-    var FALLBACK_BACKGROUND = "white";
+    var MIN_DELTA = 5;
+    var computedBody = window.getComputedStyle(document.body);
+    var FALLBACK_BACKGROUND = computedBody.backgroundColor;
+    var FALLBACK_FOREGROUND = computedBody.color;
+
+    var fallbackBgValue = getColorValue(getRgbParts(FALLBACK_BACKGROUND));
+    var fallbackFgValue = getColorValue(getRgbParts(FALLBACK_FOREGROUND));
+
+    if (notEnoughContrast(fallbackBgValue, fallbackFgValue)) {
+        console.log("falling back on system colors");
+        FALLBACK_FOREGROUND = "WindowText";
+        FALLBACK_BACKGROUND = "Window";
+    }
+
+    function notEnoughContrast(colorValue1, colorValue2) {
+        var delta = calculateDelta(colorValue1, colorValue2);
+        return delta < 5; // FIXME: this is a bit naive
+    }
 
     function getRgbParts(color) {
         return color.replace(/rgb\(/, "")
@@ -26,25 +42,27 @@
                asNumbers[2];
     }
 
+    function getComputedColor(el, prop) {
+        var computed = window.getComputedStyle(el);
+        var computedColor = computed[prop];
+        var parts = getRgbParts(computedColor);
+        return getColorValue(parts);
+    }
+
+    function calculateDelta(c1, c2) {
+        return c1 > c2 ? c1 / c2 : c2 / c1;
+    }
+
     document.querySelectorAll("input, textarea").forEach(el => {
         if (el.type === "hidden") {
             // no need to do this
             return;
         }
-        var computed = window.getComputedStyle(el);
-        var computedBackground = computed.backgroundColor;
-        var computedForeground = computed.color;
 
-        var bgParts = getRgbParts(computedBackground);
-        var fgParts = getRgbParts(computedForeground);
+        var bgValue = getComputedColor(el, "backgroundColor");
+        var fgValue = getComputedColor(el, "color");
 
-        var bgValue = getColorValue(bgParts);
-        var fgValue = getColorValue(fgParts);
-
-        var delta = fgValue < bgValue
-             ? bgValue / fgValue
-             : fgValue / bgValue;
-        if (delta < 1.5) {
+        if (notEnoughContrast(bgValue, fgValue)) {
             el.style.color = FALLBACK_FOREGROUND;
             el.style.backgroundColor = FALLBACK_BACKGROUND;
         }
