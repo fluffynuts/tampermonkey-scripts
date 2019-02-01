@@ -25,14 +25,23 @@
     }
 
     function notEnoughContrast(colorValue1, colorValue2) {
+        if (colorValue1 === null || colorValue2 === null) {
+            return true; // couldn't get colors, let's try to do the best we can
+        }
         var delta = calculateDelta(colorValue1, colorValue2);
         return delta < 5; // FIXME: this is a bit naive
     }
 
     function getRgbParts(color) {
-        return color.replace(/rgb\(/, "")
-            .replace(/\)/, "")
-            .split(",");
+        if (color.indexOf("rgba") > -1) {
+            return color.replace(/rgba\(/, "")
+                .replace(/\)/, "")
+                .split(",")
+        } else {
+            return color.replace(/rgb\(/, "")
+                .replace(/\)/, "")
+                .split(",");
+        }
     }
 
     function getColorValue(colorParts) {
@@ -46,6 +55,15 @@
         var computed = window.getComputedStyle(el);
         var computedColor = computed[prop];
         var parts = getRgbParts(computedColor);
+        if (parts.length === 4) {
+            if (parts[3].replace(/\s/, "") === "0") {
+                console.log("transparent...", el);
+                if (!el.parentElement) {
+                    return null; // somewhere else, deal with it
+                }
+                return getComputedColor(el.parentElement, prop);
+            }
+        }
         return getColorValue(parts);
     }
 
@@ -61,7 +79,11 @@
 
         var bgValue = getComputedColor(el, "backgroundColor");
         var fgValue = getComputedColor(el, "color");
-
+        console.log({
+            el,
+            bgValue,
+            fgValue
+        });
         if (notEnoughContrast(bgValue, fgValue)) {
             el.style.color = FALLBACK_FOREGROUND;
             el.style.backgroundColor = FALLBACK_BACKGROUND;
