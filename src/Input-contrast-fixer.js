@@ -71,7 +71,7 @@
         return c1 > c2 ? c1 / c2 : c2 / c1;
     }
 
-    document.querySelectorAll("input, textarea").forEach(el => {
+    function fixElement(el) {
         if (el.type === "hidden") {
             // no need to do this
             return;
@@ -88,5 +88,23 @@
             el.style.color = FALLBACK_FOREGROUND;
             el.style.backgroundColor = FALLBACK_BACKGROUND;
         }
+    }
+
+    Array.from(document.querySelectorAll("input, textarea")).forEach(el => {
+        fixElement(el);
     });
+
+    if (window.MutationObserver) {
+        var observer = new MutationObserver(function(mutationList, observer) {
+            for (var mutation of mutationList) {
+                var addedNodes = Array.from(mutation.addedNodes);
+                addedNodes.forEach(node => {
+                    Array.from(node.querySelectorAll("input, textarea")).forEach(el => {
+                        fixElement(el);
+                    });
+                });
+            }
+        });
+        observer.observe(document, { childList: true, subtree: true } );
+    }
 })();
