@@ -57,7 +57,6 @@
         var parts = getRgbParts(computedColor);
         if (parts.length === 4) {
             if (parts[3].replace(/\s/, "") === "0") {
-                console.log("transparent...", el);
                 if (!el.parentElement) {
                     return null; // somewhere else, deal with it
                 }
@@ -79,12 +78,8 @@
 
         var bgValue = getComputedColor(el, "backgroundColor");
         var fgValue = getComputedColor(el, "color");
-        console.log({
-            el,
-            bgValue,
-            fgValue
-        });
         if (notEnoughContrast(bgValue, fgValue)) {
+            console.log("fixing contrast on", el);
             el.style.color = FALLBACK_FOREGROUND;
             el.style.backgroundColor = FALLBACK_BACKGROUND;
         }
@@ -99,6 +94,9 @@
             for (var mutation of mutationList) {
                 var addedNodes = Array.from(mutation.addedNodes);
                 addedNodes.forEach(node => {
+                    if (!node.querySelectorAll) {
+                        return;
+                    }
                     Array.from(node.querySelectorAll("input, textarea")).forEach(el => {
                         fixElement(el);
                     });
