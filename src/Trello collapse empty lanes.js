@@ -20,6 +20,7 @@
     "  width: 50px",
     "}",
     sel + ".collapsed .list-header-name-assist { display: block; transform: rotate(180deg); writing-mode: vertical-lr; font-size: small; white-space: nowrap; margin-top: 20px; }",
+    sel + ".collapsed textarea { display: none; }",
     sel + ".collapsed .list-header-target { transform: rotate(90deg); }",
     sel + ".collapsed .list-header-name { transform: rotate(90deg) }",
   ].join("\n"));
@@ -35,6 +36,9 @@
   };
 
   function defineDataProp(el) {
+    if (!el) {
+      return;
+    }
     if (el.data) {
       return;
     }
