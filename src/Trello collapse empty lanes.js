@@ -4,7 +4,7 @@
 // @version      0.1
 // @description  try to take over the world!
 // @author       You
-// @match        https://trello.com/b/rJ0CUlsC/super-data-mission
+// @match        https://trello.com/b/*
 // @grant        none
 // ==/UserScript==
 
@@ -72,12 +72,14 @@
   }
 
   function unCollapse(el) {
+    //console.log("unCollapse", el);
     defineDataProp(el);
     var addCard = el.querySelector(".js-add-a-card");
     el.classList.remove("collapsed");
   }
 
   function collapse(el) {
+    //console.log("collapse", el);
     if (el.classList.contains("js-add-list")) {
       return;
     }
