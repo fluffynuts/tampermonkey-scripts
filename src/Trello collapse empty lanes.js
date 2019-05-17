@@ -139,9 +139,33 @@
     }
   });
   observer.observe(document, { childList: true, subtree: true } );
-  window.setTimeout(() => {
+  var
+    startupCollapsed = [],
+    delay = 50,
+    quitAt = 10, // quit initial collapse after 10 seconds
+    missed = 0;
+  window.setTimeout(function initialCollapse() {
+    // catch the lanes which should be initially collapsed
+    // - done in a delayed interval because I've seen some stragglers
+    //   hang around; would have expected the mutation observer to
+    //   notice them, but it doesn't, however dragging a card over
+    //   that lane and back out again prompts a mutation-observer-initiated
+    //   collapse ¯\_(ツ)_/¯
+    var handledThisTime = 0;
     Array.from(document.querySelectorAll("." + wrapperClass)).forEach(el => {
+      if (startupCollapsed.indexOf(el) > -1) {
+        return;
+      }
+      handledThisTime++;
       autoCollapse(el);
+      startupCollapsed.push(el);
     });
-  }, 2000);
+    if (handledThisTime === 0) {
+      missed++;
+    }
+    if (missed * delay > quitAt * 1000) {
+      return;
+    }
+    window.setTimeout(initialCollapse, delay);
+  }, delay);
 })();
