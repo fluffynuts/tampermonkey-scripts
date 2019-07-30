@@ -135,10 +135,12 @@
     var transforms = {
         "+": function(o) { return o.first + o.second; },
         "-": function(o) {
+            // negative results not supported (yet)
             ensureFirstIsLarger(o);
             return o.first - o.second;
         },
         "/": function(o) {
+            // fractional results not supported yet
             ensureFirstIsLarger(o);
             var rem = o.first % o.second;
             o.first += rem;
@@ -149,9 +151,11 @@
 
     function generateProblem() {
         var operator = randomFrom(["+", "-"]);
+        var lower = fetchLowerBound();
+        var upper = fetchUpperBound();
         var randoms = {
-            first: random(0, 15),
-            second: random(0, 15)
+            first: random(lower, upper),
+            second: random(lower, upper)
         }
         var answer = transforms[operator](randoms);
         return Object.assign(randoms, {
@@ -224,6 +228,45 @@
             var dlg = document.getElementById(id("dialog"));
             shake(dlg);
             input.style.borderColor = "red";
+            input.setSelectionRange(0, input.value.length);
+        }
+
+        // TODO: levelling
+        var stats = calculateStats();
+        // simple levelling: for every 50 delta, increment (could be decrement too) upper bound
+        console.log(stats);
+        var increment = Math.round(stats.delta / 25);
+        var clamped = clamp(increment, -5, 5);
+        // TODO: determine better upper bound for clamped upper
+        var newUpper = clamp(stats.upper + increment, 15, 100);
+        storeNumber("upper bound", newUpper);
+        // TODO: alter lower bound too?
+    }
+
+    function clamp(number, min, max) {
+        if (number > max) {
+            return max;
+        }
+        if (number < min) {
+            return min;
+        }
+        return number;
+    }
+
+    function calculateStats() {
+        var correct = fetchStoredNumber("correct answers", 0);
+        var incorrect = fetchStoredNumber("incorrect answers", 0);
+        var total = correct + incorrect;
+        var ratio = total === 0
+            ? 0
+            : correct / total
+        var percent = Math.round(ratio * 100);
+        return {
+            upper: fetchStoredNumber("upper bound", 15),
+            correct: correct,
+            incorrect: incorrect,
+            delta: correct - incorrect,
+            percent: percent
         }
     }
 
@@ -235,14 +278,47 @@
         incrementStoredValue("incorrect answers");
     }
 
+    function fetchLowerBound() {
+        return fetchStoredNumber("lower bound", 0);
+    }
+
+    function fetchUpperBound() {
+        return fetchStoredNumber("upper bound", 15);
+    }
+
+    function fetchStoredNumber(key, defaultValue) {
+        var result = retrieveNumber(key);
+        if (isNaN(result) && defaultValue !== undefined) {
+            storeNumber(key, defaultValue);
+            result = defaultValue;
+        }
+        return result;
+    }
+
     function incrementStoredValue(key) {
-        key = "youtube sums: " + (key || "");
-        var stored = parseInt(localStorage.getItem(key) || "0");
+        var stored = retrieveNumber(key);
         if (isNaN(stored)) {
             stored = 0;
         }
         stored++;
-        localStorage.setItem(key, stored);
+        storeNumber(key, stored);
+    }
+
+    function retrieveNumber(key) {
+        return parseInt(retrieveValue(key));
+    }
+
+    function storeNumber(key, value) {
+        storeValue(key, value);
+    }
+
+    function retrieveValue(key) {
+        key = "youtube sums: " + (key || "");
+        return localStorage.getItem(key);
+    }
+    function storeValue(key, value) {
+        key = "youtube sums: " + (key || "");
+        localStorage.setItem(key, value);
     }
 
     function shake(el, positions) {
