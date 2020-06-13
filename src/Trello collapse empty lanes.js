@@ -72,14 +72,18 @@
   }
 
   function unCollapse(el) {
-    //console.log("unCollapse", el);
+      if (!el) {
+          return;
+      }
     defineDataProp(el);
     var addCard = el.querySelector(".js-add-a-card");
     el.classList.remove("collapsed");
   }
 
   function collapse(el) {
-    //console.log("collapse", el);
+      if (!el) {
+          return;
+      }
     if (el.classList.contains("js-add-list")) {
       return;
     }
