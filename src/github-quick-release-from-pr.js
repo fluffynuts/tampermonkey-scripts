@@ -120,7 +120,9 @@
 
         url.searchParams.set("target", findPullRequestBranchName());
         url.searchParams.set("title", findPullRequestTitle());
-        url.searchParams.set("body", findPullRequestSummary());
+        const parts = window.location.href.split("/");
+        const prId = parts[parts.length - 1];
+        url.searchParams.set("body", [ `### Pull request: #${prId}`, "", findPullRequestSummary() ].join("\n"));
         url.searchParams.set("tag", await findAndIncrementLatestTag());
 
         console.info("Release link determined to be:", url.toString());
