@@ -45,7 +45,7 @@
             console.error("Can't determine PR title: no 'span.js-issue-title' element found");
             return "New release";
         }
-        return el.textContent;
+        return el.textContent.trim();
     }
 
     function findPullRequestSummary() {
