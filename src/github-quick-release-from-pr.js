@@ -78,8 +78,8 @@
 
         // if we couldn't use simple logic to get the summary only, then return all the content
         return summaryLines.length > 0
-           ? summaryLines.join("\n")
-           : lines.join("\n");
+           ? summaryLines.join("\n").trim()
+           : lines.join("\n").trim();
     }
 
     async function findAndIncrementLatestTag() {
