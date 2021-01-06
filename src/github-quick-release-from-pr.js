@@ -84,6 +84,7 @@
 
     async function findAndIncrementLatestTag() {
         const url = new URL(window.location.href + "../../../tags");
+        const fallback = "v-edit-me";
         const response = await fetch(url.toString(), {
             headers: {
                 "Accept": "text/fragment+html"
@@ -91,15 +92,27 @@
         });
         if (!response.ok) {
             console.error("Can't query tags");
-            return "v-edit-me";
+            return fallback;
         }
         const text = await response.text();
         const result = text.match(/>([^<]+)/);
         if (!result) {
             console.error(`Can't grok tag info from html fragment: '${text}'`);
-            return "v-edit-me";
+            return fallback;
         }
-        return result[1] || "v-edit-me";
+        if (!result[1]) {
+            return fallback;
+        }
+        const latest = result[1];
+        const version = latest.replace(/[^0-9\.]/g, "");
+        const parts = version.toString().split(".");
+        let last = parseInt(parts[parts.length - 1]);
+        last++;
+        parts[parts.length - 1] = last;
+        if (latest.match(/^v/)) {
+            return `v${parts.join(".")}`;
+        }
+        return parts.join(".");
     }
 
     async function main() {
