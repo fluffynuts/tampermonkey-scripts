@@ -134,7 +134,16 @@
         quickButton.target = "_blank";
     }
 
-    async function waitForElement(selector, resolver) {
+    async function waitForElement(selector, maxWaitMs, started, resolver) {
+        if (started === undefined) {
+            started = Date.now();
+        }
+        if (maxWaitMs === undefined) {
+            maxWaitMs = 60000;
+        }
+        if (Date.now() - started > maxWaitMs) {
+            return;
+        }
         if (document.querySelector(selector)) {
             if (resolver) {
                 resolver();
@@ -142,16 +151,17 @@
             return;
         }
         if (resolver) {
-            return window.setTimeout(() => waitForElement(selector, resolver), 100);
+            return window.setTimeout(() => waitForElement(selector, maxWaitMs, started, resolver), 100);
         }
         return new Promise(resolve => {
             if (document.querySelector(selector)) {
                 return resolve();
             }
-            window.setTimeout(() => waitForElement(selector, resolve), 100);
+            window.setTimeout(() => waitForElement(selector, maxWaitMs, started, resolve), 100);
         });
     }
 
     await waitForElement("task-lists");
+    await waitForElement(".btn-group-merge");
     main();
 })();
