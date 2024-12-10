@@ -4,7 +4,7 @@
 // @version      0.1
 // @description  try to take over the world!
 // @author       You
-// @match        https://news.ycombinator.com
+// @match        https://news.ycombinator.com/*
 // @icon         https://www.google.com/s2/favicons?domain=ycombinator.com
 // @grant        none
 // ==/UserScript==
