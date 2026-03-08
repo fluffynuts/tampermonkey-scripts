@@ -79,4 +79,27 @@
     container.appendChild(line(datestamp()));
     container.appendChild(line(timestamp()));
     document.body.appendChild(container);
+
+    function bindControlEnterToSubmitWherePossible() {
+        var btn = document.querySelector("input[type='submit'][value='add comment']") ||
+            document.querySelector("input[type='submit'][value='update']");
+        if (!btn) {
+            return;
+        }
+        var entry = document.querySelector("textarea[name='text']");
+        if (!entry) {
+            return;
+        }
+        console.log("adding ctrl-enter to submit");
+        entry.addEventListener("keyup", ev => {
+            if (!ev.ctrlKey) {
+                return;
+            }
+            if (ev.keyCode === 13) {
+                btn.click();
+            }
+        });
+    }
+
+    bindControlEnterToSubmitWherePossible();
 })();
